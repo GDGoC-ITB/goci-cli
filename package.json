@@ -1,0 +1,30 @@
+{
+  "name": "goci-cli",
+  "version": "1.0.0",
+  "description": "GDGoC ITB Command Line Interface untuk submisi assignment",
+  "main": "goci-cli.js",
+  "type": "module",
+  "bin": {
+    "GOCI": "./goci-cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cli",
+    "gdgoc",
+    "itb",
+    "submission"
+  ],
+  "author": "GDGoC ITB",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "form-data": "^4.0.2",
+    "node-fetch": "^3.3.2",
+    "ora": "^7.0.1"
+  },
+  "engines": {
+    "node": ">=14.16"
+  }
+}
