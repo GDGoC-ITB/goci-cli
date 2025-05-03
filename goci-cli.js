@@ -24,6 +24,11 @@ async function main() {
     const args = process.argv.slice(2);
     
     // Handle help flag
+    if ( args.length === 0 || (args.length === 1 && (args[0] === '--version' || args[0] === '--v'))){
+      console.log(chalk.cyan(`GOCI - GDGoC ITB Command Line Interface v1.0.5`));
+      process.exit(0);
+    }
+  
     if (args.length === 1 && (args[0] === '--help' || args[0] === '-h')) {
       console.log(chalk.cyan(`
 GOCI - GDGoC ITB Command Line Interface
