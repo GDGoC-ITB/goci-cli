@@ -16,7 +16,7 @@ import ora from 'ora';
 import FormData from 'form-data';
 
 // Set API URL from environment variable or default to localhost
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://api.gdgocitb.com/api';
 
 async function main() {
   try {
@@ -25,7 +25,7 @@ async function main() {
     
     // Handle help flag
     if ( args.length === 0 || (args.length === 1 && (args[0] === '--version' || args[0] === '--v'))){
-      console.log(chalk.cyan(`GOCI - GDGoC ITB Command Line Interface v1.0.5`));
+      console.log(chalk.cyan(`GOCI - GDGoC ITB Command Line Interface v1.0.6`));
       process.exit(0);
     }
   
