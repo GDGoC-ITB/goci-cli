@@ -1,6 +1,6 @@
 {
   "name": "goci-cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "GDGoC ITB Command Line Interface for assignment submission",
   "main": "goci-cli.js",
   "type": "module",
