@@ -5,8 +5,7 @@
   "main": "goci-cli.js",
   "type": "module",
   "bin": {
-    "GOCI": "./goci-cli.js",
-    "goci": "./goci-cli.js"
+    "goci": "goci-cli.js"
   },
   "preferGlobal": true,
   "scripts": {
