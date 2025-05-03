@@ -1,0 +1,23 @@
+# Development files
+node_modules/
+.git/
+.gitignore
+.env
+
+# Test files
+test/
+*.test.js
+
+# Build files
+*.log
+*.tmp
+
+# IDE files
+.vscode/
+.idea/
+
+# Documentation
+docs/
+
+# Source files not needed in production
+src/

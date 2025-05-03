@@ -1,12 +1,14 @@
 {
-  "name": "goci-cli",
+  "name": "@gdgoc-itb/goci-cli",
   "version": "1.0.0",
-  "description": "GDGoC ITB Command Line Interface untuk submisi assignment",
+  "description": "GDGoC ITB Command Line Interface for assignment submission",
   "main": "goci-cli.js",
   "type": "module",
   "bin": {
-    "GOCI": "./goci-cli.js"
+    "GOCI": "./goci-cli.js",
+    "goci": "./goci-cli.js"
   },
+  "preferGlobal": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,17 +16,32 @@
     "cli",
     "gdgoc",
     "itb",
-    "submission"
+    "submission",
+    "assignment",
+    "learning"
   ],
   "author": "GDGoC ITB",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "chalk": "^5.3.0",
-    "form-data": "^4.0.2",
+    "form-data": "^4.0.0",
     "node-fetch": "^3.3.2",
     "ora": "^7.0.1"
   },
   "engines": {
     "node": ">=14.16"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gdgoc-itb/goci-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gdgoc-itb/goci-cli/issues"
+  },
+  "homepage": "https://github.com/gdgoc-itb/goci-cli#readme",
+  "files": [
+    "goci-cli.js",
+    "README.md",
+    "LICENSE"
+  ]
 }
