@@ -35,42 +35,32 @@ Before installing GOCI, make sure you have Node.js and npm installed on your sys
 
 ## Installation
 
-### Local Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/gdgoc-itb/goci-cli.git
-   cd goci-cli
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Link the package globally:
-   ```bash
-   npm link
-   ```
-
-### Installation from NPM (if published)
+### Installation from NPM (Recommended)
 
 ```bash
+# Install globally
 npm install -g goci-cli
+
+# Or use directly with npx (no installation needed)
+npx goci-cli <email> <module_name> <file_path>
 ```
 
 ## Usage
 
-The basic syntax for GOCI is:
+After installation, you can check if GOCI is installed correctly by running:
 
 ```bash
-GOCI <email> <module_name> <file_path>
+goci --help
+```
+
+For submitting the assignment, use the following command:
+```bash
+goci <email> <module_name> <file_path>
 ```
 
 Example:
-
 ```bash
-GOCI john.doe@itb.ac.id "Introduction to JavaScript" ./assignment1.js
+goci john.doe@itb.ac.id "Introduction to JavaScript" ./assignment1.js
 ```
 
 ### Parameters
@@ -82,15 +72,18 @@ GOCI john.doe@itb.ac.id "Introduction to JavaScript" ./assignment1.js
 ## Usage Examples
 
 1. Submitting a JavaScript file for "JavaScript Basics" module:
-
    ```bash
-   GOCI student@itb.ac.id "JavaScript Basics" ./hello-world.js
+   goci student@itb.ac.id "JavaScript Basics" ./hello-world.js
    ```
 
 2. Submitting a Python program for "Python Introduction" module:
-
    ```bash
-   GOCI student@itb.ac.id "Python Introduction" ./my_app.py
+   goci student@itb.ac.id "Python Introduction" ./my_app.py
+   ```
+
+3. Using npx without installation:
+   ```bash
+   npx goci-cli student@itb.ac.id "Web Development" ./index.html
    ```
 
 ## Troubleshooting
@@ -98,28 +91,9 @@ GOCI john.doe@itb.ac.id "Introduction to JavaScript" ./assignment1.js
 If you encounter issues, please make sure:
 
 1. The email you're using is registered in the GDGoC ITB LMS system
-2. The module name is typed correctly and exactly matches the one on the platform (case-sensitive)
+2. The module name is typed correctly and exactly matches the one on the platform (case-sensitive)  
 3. The file you want to submit exists and is accessible
 4. You are connected to the internet
-
-## Environment Variables
-
-GOCI uses environment variables that can be configured:
-
-- `API_URL`: URL of the GDGoC ITB LMS API (default: `http://localhost:5000/api-GDGoC-ITB`)
-
-To set environment variables:
-
-```bash
-# For Linux/macOS
-export API_URL=https://api.lms.gdgoc-itb.com/api-GDGoC-ITB
-
-# For Windows (Command Prompt)
-set API_URL=https://api.lms.gdgoc-itb.com/api-GDGoC-ITB
-
-# For Windows (PowerShell)
-$env:API_URL = "https://api.lms.gdgoc-itb.com/api-GDGoC-ITB"
-```
 
 ## FAQ
 

@@ -1,5 +1,5 @@
 {
-  "name": "@gdgoc-itb/goci-cli",
+  "name": "goci-cli",
   "version": "1.0.0",
   "description": "GDGoC ITB Command Line Interface for assignment submission",
   "main": "goci-cli.js",

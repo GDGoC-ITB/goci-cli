@@ -15,12 +15,12 @@ import chalk from 'chalk';
 import ora from 'ora';
 import FormData from 'form-data';
 
-// Konfigurasi URL API
-const API_URL = process.env.API_URL || 'http://localhost:5000/api-GDGoC-ITB';
+// Set API URL from environment variable or default to localhost
+const API_URL = 'http://localhost:3000/api';
 
 async function main() {
   try {
-    // Dapatkan argumen dari command line
+    // Get command line arguments
     const args = process.argv.slice(2);
     
     // Handle help flag
@@ -53,13 +53,13 @@ Contoh:
     
     const [email, moduleName, filePath] = args;
     
-    // Validasi email
+    // Validate email
     if (!isValidEmail(email)) {
       console.log(chalk.red('Error: Invalid email format'));
       process.exit(1);
     }
     
-    // Validasi file path
+    // Validate file path
     if (!fs.existsSync(filePath)) {
       console.log(chalk.red(`Error: File '${filePath}' does not exist`));
       process.exit(1);
@@ -69,16 +69,16 @@ Contoh:
     const originalFilename = path.basename(filePath);
     const fileExtension = path.extname(filePath).slice(1); // Get extension without dot
     
-    // Buat format filename yang akan disimpan informasi extension asli
+    // Make a formatted filename for submission
     // Format: original_extension__originalfilename.txt
-    // Contoh: js__mycode.txt
+    // Example: js__mycode.txt
     const formattedFilename = `${fileExtension}__${originalFilename}`;
     
     const spinner = ora(chalk.cyan(`Submitting assignment for module "${moduleName}"...`)).start();
     console.log(chalk.cyan(`\nSubmitting file: ${formattedFilename}`));
     console.log(chalk.cyan(`Original filename: ${fileExtension}`));
 
-    // Buat form data untuk upload file
+    // Make a FormData object to send the file
     const formData = new FormData();
     formData.append('email', email);
     formData.append('moduleName', moduleName);
