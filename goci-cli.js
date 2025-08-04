@@ -10,7 +10,7 @@ import http from 'http';
 import open from 'open';
 import os from 'os';
 import updateNotifier from 'update-notifier';
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 
 const API_URL = 'https://api.gdgocitb.com/api';
 const FRONTEND_URL = 'https://gdgocitb.com';
@@ -37,7 +37,7 @@ async function main() {
         break;
       case '--version':
       case '-v':
-        console.log(chalk.cyan('GOCI - GDGoC ITB Command Line Interface v2.0.0'));
+        console.log(chalk.cyan('GOCI - GDGoC ITB Command Line Interface v2.0.1'));
         break;
       case '--help':
       case '-h':
