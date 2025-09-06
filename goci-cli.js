@@ -37,7 +37,7 @@ async function main() {
         break;
       case '--version':
       case '-v':
-        console.log(chalk.cyan('GOCI - GDGoC ITB Command Line Interface v2.0.1'));
+        console.log(chalk.cyan(`GOCI - GDGoC ITB Command Line Interface v${pkg.version}`));
         break;
       case '--help':
       case '-h':
@@ -51,6 +51,16 @@ async function main() {
   }
 }
 
+// Utils
+function isValidUrl(maybeUrl) {
+  try {
+    const u = new URL(maybeUrl);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 // Print Help Function
 function printHelp() {
   console.log(chalk.cyan(`
@@ -59,13 +69,14 @@ GOCI - GDGoC ITB Command Line Interface
 Perintah:
   login                   Mulai proses login via browser untuk otentikasi CLI.
   logout                  Hapus token otentikasi dari komputer Anda.
-  submit <module> <path>  Kirim file tugas untuk modul tertentu.
+  submit <module> <arg>   Kirim tugas: <arg> bisa path file (GOCI) atau URL (Link).
   --version, -v           Tampilkan versi GOCI.
   --help, -h              Tampilkan pesan bantuan ini.
 
-Contoh Penggunaan:
+Contoh:
   goci login
   goci submit "JavaScript Basics" ./assignment.js
+  goci submit "Intro to HTTP" https://gist.github.com/your-id/abcd
   goci logout
   `));
 }
@@ -136,42 +147,153 @@ async function handleSubmit(args) {
     return;
   }
   const token = fs.readFileSync(TOKEN_PATH, 'utf-8');
-  
-  const [moduleName, filePath] = args;
 
-  if (!fs.existsSync(filePath)) {
-    console.log(chalk.red(`Error: File '${filePath}' does not exist.`));
-    return;
-  }
+  const [rawModuleName, rawPayload] = args;
+  const moduleName = String(rawModuleName).trim();
+  const payload = String(rawPayload).trim();
+  const spinner = ora(chalk.cyan(`Resolving submission type for "${moduleName}"...`)).start();
 
-  const spinner = ora(chalk.cyan(`Submitting assignment for module "${moduleName}"...`)).start();
-
-  const originalFilename = path.basename(filePath);
-  const fileExtension = path.extname(filePath).slice(1) || 'txt';
-  const formattedFilename = `${fileExtension}__${originalFilename}`;
-
-  const formData = new FormData();
-  formData.append('moduleName', moduleName);
-  formData.append('file', fs.createReadStream(filePath), formattedFilename);
-  formData.append('originalExtension', fileExtension);
-
-  const response = await fetch(`${API_URL}/submissions/cli-submit-with-file`, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      ...formData.getHeaders(),
-      'Authorization': `Bearer ${token}`
+  try {
+    const url = `${API_URL}/problem-sets/resolve-type?moduleName=${encodeURIComponent(moduleName)}`;
+    const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+    if (resp.status === 401 || resp.status === 403) {
+      spinner.fail(chalk.red('Your session has expired. Please run "goci login" again.'));
+      try { fs.unlinkSync(TOKEN_PATH); } catch {}
+      return;
     }
-  });
+    const json = await resp.json();
 
-  const result = await response.json();
+    if (!resp.ok) {
+      spinner.fail(chalk.red(json?.message || 'Failed to resolve module submission type'));
+      return;
+    }
 
-  if (response.ok) {
-    spinner.succeed(chalk.green('Assignment submitted successfully!'));
-    console.log(chalk.yellow(`\n${result.data ? result.data.message : 'Submission recorded.'}`));
-  } else {
+    const { submissionTypes = [], preferredType } = json.data || {};
+    if (!submissionTypes.length) {
+      spinner.fail(chalk.red(`No problem sets found for module "${moduleName}".`));
+      return;
+    }
+
+    let chosenType = null;
+
+    const looksLikeUrl = isValidUrl(payload);
+    const looksLikeFile = (() => {
+      try { return fs.statSync(payload).isFile(); } catch { return false; }
+    })();
+
+
+    if (looksLikeUrl && submissionTypes.includes('Link')) {
+      chosenType = 'Link';
+    } else if (looksLikeFile && submissionTypes.includes('GOCI')) {
+      chosenType = 'GOCI';
+    } else if (!looksLikeUrl && !looksLikeFile) {
+      spinner.fail(chalk.red(
+        `Payload "${payload}" is neither a valid URL nor an existing file path.\n` +
+        `Use a URL for Link submission or a valid file path for GOCI.`
+      ));
+      return;
+    } else {
+
+      if (looksLikeUrl && !submissionTypes.includes('Link')) {
+        spinner.fail(chalk.red(
+          `Module "${moduleName}" does not support Link. Supported types: ${submissionTypes.join(', ')}.\n` +
+          `Please provide a file path for GOCI submission.`
+        ));
+        return;
+      }
+      if (looksLikeFile && !submissionTypes.includes('GOCI')) {
+        spinner.fail(chalk.red(
+          `Module "${moduleName}" does not support GOCI. Supported types: ${submissionTypes.join(', ')}.\n` +
+          `Please provide a URL for Link submission.`
+        ));
+        return;
+      }
+      
+      if (preferredType && submissionTypes.includes(preferredType)) {
+        chosenType = preferredType;
+      } else {
+        spinner.fail(chalk.red(`Supported types: ${submissionTypes.join(', ')}`));
+        return;
+      }
+    }
+
+    // GOCI Submission
+    if (chosenType === 'GOCI') {
+      if (!looksLikeFile) {
+        spinner.fail(chalk.red(`File '${payload}' does not exist (required for GOCI submission).`));
+        return;
+      }
+
+      spinner.text = chalk.cyan(`Submitting file for "${moduleName}" (GOCI)...`);
+
+      const originalFilename = path.basename(payload);
+      const fileExtension = path.extname(payload).slice(1) || 'txt';
+      const formattedFilename = `${fileExtension}__${originalFilename}`;
+
+      const formData = new FormData();
+      formData.append('moduleName', moduleName);
+      formData.append('file', fs.createReadStream(payload), formattedFilename);
+      formData.append('originalExtension', fileExtension);
+
+      const response = await fetch(`${API_URL}/submissions/cli-submit-with-file`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          ...formData.getHeaders(),
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        spinner.fail(chalk.red('Your session has expired. Please run "goci login" again.'));
+        try { fs.unlinkSync(TOKEN_PATH); } catch {}
+        return;
+      }
+
+      const result = await response.json();
+      if (response.ok) {
+        spinner.succeed(chalk.green('Assignment submitted successfully (GOCI)!'));
+        console.log(chalk.yellow(`\n${result.data?.message || 'Submission recorded.'}`));
+      } else {
+        spinner.fail(chalk.red('Submission failed!'));
+        console.error(chalk.red(`\n${result.message || 'Unknown error occurred'}`));
+      }
+    } 
+    // Link Submission
+    else {
+      if (!looksLikeUrl) {
+        spinner.fail(chalk.red(`'${payload}' is not a valid URL (required for Link submission).`));
+        return;
+      }
+
+      spinner.text = chalk.cyan(`Submitting link for "${moduleName}"...`);
+      const response = await fetch(`${API_URL}/submissions/cli-submit-link`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ moduleName, link: payload })
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        spinner.fail(chalk.red('Your session has expired. Please run "goci login" again.'));
+        try { fs.unlinkSync(TOKEN_PATH); } catch {}
+        return;
+      }
+
+      const result = await response.json();
+      if (response.ok) {
+        spinner.succeed(chalk.green('Assignment submitted successfully (Link)!'));
+        console.log(chalk.yellow(`\n${result.data?.message || 'Submission recorded.'}`));
+      } else {
+        spinner.fail(chalk.red('Submission failed!'));
+        console.error(chalk.red(`\n${result.message || 'Unknown error occurred'}`));
+      }
+    }
+  } catch (err) {
     spinner.fail(chalk.red('Submission failed!'));
-    console.error(chalk.red(`\n${result.message || 'Unknown error occurred'}`));
+    console.error(chalk.red(err.message || err));
   }
 }
 

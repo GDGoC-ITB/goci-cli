@@ -1,118 +1,136 @@
-# GOCI - GDGoC ITB Command Line Interface
+# GOCI — GDGoC ITB Command Line Interface
 
-A command-line interface tool for submitting assignments to the GDGoC ITB Learning Management System.
+A fast, reliable CLI to submit assignments to the **GDGoC ITB** Learning Management System.
 
-## Description
+---
 
-GOCI (GDGoC ITB CLI) is a command-line tool developed to simplify the submission process for GDGoC ITB members and buddies. This tool is specifically designed for assignments that require quick code or file submissions.
+## 🧰 Prerequisites
 
-## Prerequisites
+- **Node.js** and **npm** (LTS recommended)
 
-Before installing GOCI, make sure you have Node.js and npm installed on your system.
+Verify:
+```bash
+node --version
+npm --version
+````
 
-### Installing Node.js and npm
+---
 
-1. **For Windows/macOS users**:
-   - Download and install Node.js from [https://nodejs.org/](https://nodejs.org/)
-   - Choose the LTS (Long Term Support) version for better stability
-   - npm will be installed automatically with Node.js
+## 📦 Installation
 
-2. **For Linux users**:
-   ```bash
-   # Using Ubuntu/Debian
-   sudo apt update
-   sudo apt install nodejs npm
-
-   # Using CentOS/RHEL
-   sudo yum install nodejs npm
-   ```
-
-3. **Verify installation**:
-   ```bash
-   node --version
-   npm --version
-   ```
-
-## Installation
-
-### Installation from NPM (Recommended)
+### Using npm (recommended)
 
 ```bash
 # Install globally
-npm install -g goci-cli
+npm install -g goci-cli@latest
 
-# Or use directly with npx (no installation needed)
-npx goci-cli <email> <module_name> <file_path>
+# Or use directly without installing
+npx goci-cli --help
 ```
 
-## Usage
+> Note: the published npm package name may differ depending on your registry setup.
 
-After installation, you can check if GOCI is installed correctly by running:
+---
+
+## 🚀 Commands
 
 ```bash
-goci --help
+goci --help         # Show help
+goci -v             # Show CLI version
+goci login          # Log in via browser (stores a local token)
+goci logout         # Log out (deletes the local token)
+goci submit "<Module Name>" <arg>   # Submit an assignment
 ```
 
-For submitting the assignment, use the following command:
+**`<arg>` semantics**
+
+* **File path** → for modules that support **GOCI** (file upload)
+* **URL** → for modules that support **Link**
+
+The CLI automatically resolves the module’s supported types and picks the right path based on your payload.
+
+---
+
+## 🧪 Examples
+
+### 1) Log in
+
 ```bash
-goci <email> <module_name> <file_path>
+goci login
 ```
 
-Example:
+Your browser opens for authentication. Close the tab once successful.
+
+### 2) Submit a file (GOCI)
+
 ```bash
-goci john.doe@itb.ac.id "Introduction to JavaScript" ./assignment1.js
+goci submit "Introduction to Flutter" "./Week 10 Report.pdf"
+# On Windows, always quote paths with spaces
 ```
 
-### Parameters
+### 3) Submit a link (Link)
 
-- `<email>`: Email registered in the GDGoC ITB LMS platform
-- `<module_name>`: Module name that matches exactly with the one on the platform
-- `<file_path>`: Path to the file you want to submit
+```bash
+goci submit "HTML & CSS Fundamentals" "https://gist.github.com/your-id/abcd1234"
+```
 
-## Usage Examples
+### 4) Log out
 
-1. Submitting a JavaScript file for "JavaScript Basics" module:
+```bash
+goci logout
+```
+
+---
+
+## 🛠️ Troubleshooting
+
+1. **“You are not logged in.”**
+   Run `goci login` and complete the browser flow.
+
+2. **“Your session has expired.”**
+   Token is invalid/expired. Run `goci login` again (the CLI removes the old token).
+
+3. **“Module "<name>" not found.”**
+
+   * Make sure the module name is correct.
+   * The server checks case-insensitively, but it’s best to copy the exact title from LMS.
+
+4. **“Module does not support Link/GOCI.”**
+   Your payload type doesn’t match the module’s supported submission types.
+
+   * Use a **URL** for **Link** modules.
+   * Use a **file path** for **GOCI** modules.
+
+5. **“Payload is neither a valid URL nor an existing file path.”**
+
+   * For **Link**: ensure the URL starts with `http://` or `https://`.
+   * For **GOCI**: ensure the file exists and quote paths with spaces.
+
+6. **Windows paths with spaces**
+   Always quote:
+
    ```bash
-   goci student@itb.ac.id "JavaScript Basics" ./hello-world.js
+   goci submit "Intro to JS" "C:\Users\Me\Documents\my code\app.js"
    ```
 
-2. Submitting a Python program for "Python Introduction" module:
-   ```bash
-   goci student@itb.ac.id "Python Introduction" ./my_app.py
-   ```
+7. **Network / server errors**
+   Check your internet connection and confirm the LMS API is reachable.
 
-3. Using npx without installation:
-   ```bash
-   npx goci-cli student@itb.ac.id "Web Development" ./index.html
-   ```
+---
 
-## Troubleshooting
+## ❓ FAQ
 
-If you encounter issues, please make sure:
+**Do I need to pass my email to submit?**
+No. The latest version uses your **login token** (not an email argument).
 
-1. The email you're using is registered in the GDGoC ITB LMS system
-2. The module name is typed correctly and exactly matches the one on the platform (case-sensitive)  
-3. The file you want to submit exists and is accessible
-4. You are connected to the internet
+**Is the module name case-sensitive?**
+The backend matches **case-insensitively**, but using the exact LMS title is recommended.
 
-## FAQ
+**Which file types can I upload?**
+Depends on server policy. By default, the middleware accepts categories: `code`, `image`, `document`.
 
-### How do I check if my submission was successful?
+---
 
-If your submission is successful, GOCI will display a success message. You can also check your submission status on the GDGoC ITB LMS dashboard.
+## 📄 License
 
-### Do I need to log in first?
-
-No. GOCI identifies users based on the provided email. Make sure your email is registered in the system.
-
-### What if I forget the module name?
-
-You can check the available module names through the GDGoC ITB LMS dashboard in the "Courses" or "Modules" section.
-
-## Development
-
-To contribute to GOCI development, please fork this repository and create a pull request with your proposed features or fixes.
-
-## License
-
-MIT License
+**MIT License**
